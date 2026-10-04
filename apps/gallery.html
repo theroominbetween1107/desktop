@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<style>
+
+@font-face {
+  font-family: "MS Sans Serif";
+  src: url("../fonts/MS_Sans_Serif.ttf") format("truetype");
+}
+
+body {
+  margin: 0;
+  padding: 12px;
+  background: #c0c0c0;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+* {
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+
+/* ================= PASSWORD SCREEN ================= */
+
+#password-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.password-box {
+  width: 300px;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  box-shadow:
+    inset -2px -2px #808080,
+    inset 2px 2px #dfdfdf;
+}
+
+.password-title {
+  background: navy;
+  color: white;
+  padding: 3px 5px;
+  font-size: 13px;
+}
+
+.password-content {
+  padding: 15px;
+}
+
+.password-content p {
+  margin-top: 0;
+}
+
+.password-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 8px 0 12px 0;
+  border: 2px solid #808080;
+  box-shadow:
+    inset 1px 1px #000,
+    inset -1px -1px #fff;
+  padding: 4px;
+}
+
+.password-button {
+  display: block;
+  margin-left: auto;
+  min-width: 55px;
+  padding: 3px 10px;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  box-shadow:
+    inset -1px -1px #808080,
+    inset 1px 1px #fff;
+  cursor: pointer;
+}
+
+.password-button:active {
+  box-shadow:
+    inset 1px 1px #808080,
+    inset -1px -1px #fff;
+}
+
+#error {
+  color: #800000;
+  font-size: 12px;
+  min-height: 14px;
+}
+
+
+/* ================= GALLERY ================= */
+
+#gallery {
+  display: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.item {
+  background: #fff;
+  border: 2px solid #808080;
+  box-shadow:
+    inset -1px -1px #808080,
+    inset 1px 1px #fff;
+  padding: 6px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.item img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  object-position: center;
+  border: 1px solid #000;
+  display: block;
+}
+
+.caption {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+h3 {
+  font-size: 16px;
+  margin: 0 0 10px 0;
+}
+
+.item:hover {
+  outline: 1px dotted black;
+}
+
+
+/* ================= SECRET POST ================= */
+
+.secret-post {
+  display: none;
+}
+
+
+/* ================= NOW PLAYING ================= */
+
+#now-playing {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  width: 220px;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  box-shadow:
+    inset -2px -2px #808080,
+    inset 2px 2px #dfdfdf;
+  padding: 8px;
+  font-size: 11px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+#now-playing.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.now-playing-title {
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.now-playing-song {
+  font-size: 12px;
+}
+
+.now-playing-artist {
+  color: #404040;
+  margin-top: 2px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- BACKGROUND MUSIC -->
+
+<audio
+  id="galleryMusic"
+  src="../media/Lose.mp3"
+  loop
+></audio>
+
+
+<!-- PASSWORD SCREEN -->
+
+<div id="password-screen">
+
+  <div class="password-box">
+
+    <div class="password-title">
+      Gallery Access
+    </div>
+
+    <div class="password-content">
+
+      <p>This directory is protected.</p>
+
+      <label for="password">Password:</label>
+
+      <input
+        type="password"
+        id="password"
+        class="password-input"
+      >
+
+      <div id="error"></div>
+
+      <button
+        class="password-button"
+        onclick="checkPassword()"
+      >
+        OK
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- GALLERY -->
+
+<div id="gallery">
+
+  <h3>Gallery</h3>
+
+  <div class="grid">
+
+    <div
+      class="item"
+      onclick="selectGalleryItem(1)"
+    >
+
+      <img src="../media/idiot.png">
+
+      <div class="caption">
+        iSn't he lovely?
+      </div>
+
+    </div>
+
+
+    <div
+      class="item"
+      onclick="selectGalleryItem(2)"
+    >
+
+      <img src="../media/looping.png">
+
+      <div class="caption">
+        loopIng
+      </div>
+
+    </div>
+
+
+    <div
+      class="item"
+      onclick="selectGalleryItem(3)"
+    >
+
+      <img src="../media/stare.jpeg">
+
+      <div class="caption">
+        stAre...
+      </div>
+
+    </div>
+
+
+    <div
+      class="item"
+      onclick="selectGalleryItem(4)"
+    >
+
+      <img src="../media/dog.jpeg">
+
+      <div class="caption">
+        Dog
+      </div>
+
+    </div>
+
+
+    <div
+      class="item"
+      onclick="selectGalleryItem(5)"
+    >
+
+      <img src="../media/her.jpeg">
+
+      <div class="caption">
+        it's You!
+      </div>
+
+    </div>
+
+
+    <div
+      class="item"
+      onclick="selectGalleryItem(6)"
+    >
+
+      <img src="../media/nucleus.jpeg">
+
+      <div class="caption">
+        nucLeus
+      </div>
+
+    </div>
+
+    <div
+      class="item secret-post"
+      id="secret-post"
+      onclick="openSecretPost()"
+    >
+
+      <img src="../media/sorry.png">
+
+      <div class="caption">
+        Congrats
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- NOW PLAYING -->
+
+<div id="now-playing">
+
+  <div class="now-playing-title">
+    Now Playing
+  </div>
+
+  <div
+    class="now-playing-song"
+    id="now-playing-song"
+  ></div>
+
+  <div
+    class="now-playing-artist"
+    id="now-playing-artist"
+  ></div>
+
+</div>
+
+
+<script>
+
+
+/* ================= NOW PLAYING ================= */
+
+function showNowPlaying(song, artist) {
+
+  const box =
+    document.getElementById("now-playing");
+
+  document.getElementById(
+    "now-playing-song"
+  ).textContent = song;
+
+  document.getElementById(
+    "now-playing-artist"
+  ).textContent = artist;
+
+  box.classList.add("show");
+
+  clearTimeout(
+    window.nowPlayingTimeout
+  );
+
+  window.nowPlayingTimeout =
+    setTimeout(function() {
+
+      box.classList.remove("show");
+
+    }, 5000);
+
+}
+
+
+/* ================= GALLERY PUZZLE ================= */
+
+const correctOrder = [
+  4,
+  1,
+  3,
+  6,
+  2,
+  5
+];
+
+
+let currentStep = 0;
+
+
+function selectGalleryItem(number) {
+
+  if (
+    number === correctOrder[currentStep]
+  ) {
+
+    currentStep++;
+
+
+    if (
+      currentStep === correctOrder.length
+    ) {
+
+      unlockSecretPost();
+
+    }
+
+  } else {
+
+    currentStep = 0;
+
+  }
+
+}
+
+
+function unlockSecretPost() {
+
+  document.getElementById(
+    "secret-post"
+  ).style.display = "block";
+
+}
+
+
+/* ================= SECRET POST ================= */
+
+function openSecretPost() {
+
+  const parentWindow = window.parent;
+
+
+  if (
+    parentWindow &&
+    parentWindow !== window &&
+    typeof parentWindow.createWindow === "function"
+  ) {
+
+    parentWindow.createWindow(
+      "Message",
+      "apps/secret-message.html"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    typeof createWindow === "function"
+  ) {
+
+    createWindow(
+      "Message",
+      "apps/secret-message.html"
+    );
+
+  }
+
+}
+
+
+/* ================= PASSWORD ================= */
+
+function checkPassword() {
+
+  const password =
+    document.getElementById("password").value;
+
+  const error =
+    document.getElementById("error");
+
+
+  if (password === "FOREBORN") {
+
+    document.getElementById(
+      "password-screen"
+    ).style.display = "none";
+
+
+    document.getElementById(
+      "gallery"
+    ).style.display = "block";
+
+
+    showNowPlaying(
+      "Did I Lose You",
+      "Letters From Sixteen"
+    );
+
+
+    const music =
+      document.getElementById("galleryMusic");
+
+
+    music.volume = 0;
+
+
+    music.play().then(function() {
+
+      let volume = 0;
+
+      const targetVolume = 0.25;
+      const fadeDuration = 3000;
+      const steps = 30;
+
+      const volumeStep =
+        targetVolume / steps;
+
+      const intervalTime =
+        fadeDuration / steps;
+
+
+      const fadeIn =
+        setInterval(function() {
+
+          volume += volumeStep;
+
+
+          if (volume >= targetVolume) {
+
+            volume = targetVolume;
+
+            clearInterval(fadeIn);
+
+          }
+
+
+          music.volume = volume;
+
+        }, intervalTime);
+
+    }).catch(function(error) {
+
+      console.log(
+        "Music failed to play:",
+        error
+      );
+
+    });
+
+
+  } else {
+
+    error.textContent =
+      "Invalid password.";
+
+  }
+
+}
+
+
+document
+  .getElementById("password")
+  .addEventListener(
+    "keydown",
+    function(event) {
+
+      if (event.key === "Enter") {
+
+        checkPassword();
+
+      }
+
+    }
+  );
+
+window.addEventListener(
+  "beforeunload",
+  function() {
+
+    const music =
+      document.getElementById("galleryMusic");
+
+    music.pause();
+
+  }
+);
+
+</script>
+
+
+</body>
+
+</html>

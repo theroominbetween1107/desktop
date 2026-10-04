@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Command Prompt</title>
+
+<style>
+@font-face {
+    font-family: "MS Sans Serif";
+    src: url("../fonts/MS_Sans_Serif.ttf") format("truetype");
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+body {
+    font-family: "Courier New", monospace;
+    color: #c0c0c0;
+}
+
+.window {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 10px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 15px;
+    line-height: 1.35;
+    cursor: text;
+}
+
+.line {
+    margin: 0;
+}
+
+.command-line {
+    display: flex;
+    width: 100%;
+}
+
+.prompt {
+    white-space: pre;
+}
+
+.input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #c0c0c0;
+    font-family: "Courier New", monospace;
+    font-size: 15px;
+    padding: 0;
+    margin: 0;
+    caret-color: #c0c0c0;
+}
+
+.error {
+    color: #ff5555;
+}
+</style>
+</head>
+
+<body>
+<audio
+    id="backgroundMusic"
+    src="../media/command.mp3"
+    loop
+  ></audio>
+<div class="window">
+
+    <div class="terminal" id="terminal">
+
+        <div id="output"></div>
+
+        <div class="command-line">
+            <span class="prompt" id="prompt">C:\></span>
+
+            <input
+                class="input"
+                id="commandInput"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                autofocus
+            >
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const output = document.getElementById("output");
+const input = document.getElementById("commandInput");
+const prompt = document.getElementById("prompt");
+const terminal = document.getElementById("terminal");
+
+let currentPath = "C:\\";
+let commandHistory = [];
+let historyIndex = -1;
+
+
+const filesystem = {
+
+    "C:\\": {
+        type: "dir",
+        children: {
+
+            "Program Files": {
+                type: "dir"
+            },
+
+            "Windows": {
+                type: "dir"
+            },
+
+            "Users": {
+                type: "dir"
+            },
+
+            "Documents": {
+                type: "dir"
+            },
+
+            "Downloads": {
+                type: "dir"
+            },
+
+            "System": {
+                type: "dir"
+            },
+
+            "readme.txt": {
+                type: "file",
+                content:
+`Welcome to BirthdayOS.
+`
+            }
+        }
+    },
+
+
+    "C:\\Program Files": {
+        type: "dir",
+        children: {
+
+            "Internet Explorer": {
+                type: "dir"
+            },
+
+            "Windows Media Player": {
+                type: "dir"
+            },
+
+            "Games": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Program Files\\Internet Explorer": {
+        type: "dir",
+        children: {
+
+            "iexplore.exe": {
+                type: "file",
+                content: ""
+            },
+
+            "history.txt": {
+                type: "file",
+                content:
+`09/01/2026    10:14 AM    unknown URL
+09/03/2026    06:42 PM    unknown URL
+09/05/2026    09:07 PM    unknown URL
+09/07/2026    11:11 AM    unknown URL
+`
+            }
+        }
+    },
+
+
+    "C:\\Program Files\\Windows Media Player": {
+        type: "dir",
+        children: {
+
+            "wmplayer.exe": {
+                type: "file",
+                content: ""
+            },
+
+            "playlist.txt": {
+                type: "file",
+                content:
+`01 - Birthday
+02 - Summer
+03 - Memories
+04 - November
+05 - Seven
+`
+            }
+        }
+    },
+
+
+    "C:\\Program Files\\Games": {
+        type: "dir",
+        children: {
+
+            "solitaire.exe": {
+                type: "file",
+                content: ""
+            },
+
+            "minesweeper.exe": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Windows": {
+        type: "dir",
+        children: {
+
+            "System32": {
+                type: "dir"
+            },
+
+            "Temp": {
+                type: "dir"
+            },
+
+            "Fonts": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Windows\\System32": {
+        type: "dir",
+        children: {
+
+            "kernel.dll": {
+                type: "file",
+                content: ""
+            },
+
+            "config.sys": {
+                type: "file",
+                content:
+`DEVICE=C:\\WINDOWS\\SYSTEM\\HIMEM.SYS
+FILES=40
+BUFFERS=20
+`
+            }
+        }
+    },
+
+
+    "C:\\Windows\\Temp": {
+        type: "dir",
+        children: {
+
+            "tmp001.tmp": {
+                type: "file",
+                content: ""
+            },
+
+            "tmp002.tmp": {
+                type: "file",
+                content: ""
+            },
+
+            "old_note.txt": {
+                type: "file",
+                content: ""
+            },
+
+            "cache.dat": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Windows\\Fonts": {
+        type: "dir",
+        children: {
+
+            "MSSANSER.TTF": {
+                type: "file",
+                content: ""
+            },
+
+            "ARIAL.TTF": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Users": {
+        type: "dir",
+        children: {
+
+            "Birthday": {
+                type: "dir"
+            },
+
+            "Guest": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday": {
+        type: "dir",
+        children: {
+
+            "Desktop": {
+                type: "dir"
+            },
+
+            "Documents": {
+                type: "dir"
+            },
+
+            "Downloads": {
+                type: "dir"
+            },
+
+            "AppData": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\Desktop": {
+        type: "dir",
+        children: {
+
+            "birthday.txt": {
+                type: "file",
+                content:
+`Happy Birthday!
+`
+            },
+
+            "todo.txt": {
+                type: "file",
+                content:
+`TODO:
+
+finish website
+clean desktop
+buy candles
+`
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\Documents": {
+        type: "dir",
+        children: {
+
+            "School": {
+                type: "dir"
+            },
+
+            "Pictures": {
+                type: "dir"
+            },
+
+            "Old": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\Documents\\School": {
+        type: "dir",
+        children: {
+
+            "notes.txt": {
+                type: "file",
+                content:
+`Mathematics
+English
+Science
+History
+`
+            },
+
+            "schedule.txt": {
+                type: "file",
+                content:
+`Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+`
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\Documents\\Pictures": {
+        type: "dir",
+        children: {
+
+            "birthday.jpg": {
+                type: "file",
+                content: ""
+            },
+
+            "summer.jpg": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\Documents\\Old": {
+        type: "dir",
+        children: {
+
+            "archive": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\Documents\\Old\\archive": {
+        type: "dir",
+        children: {
+
+            "notes.txt": {
+                type: "file",
+                content: ""
+            },
+
+            "code.txt": {
+                type: "file",
+                content:
+`GPRLCPRU
+`
+            },
+
+
+            "backup.txt": {
+                type: "file",
+                content:
+`Gronsfeld
+`
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\Downloads": {
+        type: "dir",
+        children: {
+
+            "setup.exe": {
+                type: "file",
+                content: ""
+            },
+
+            "readme.txt": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\AppData": {
+        type: "dir",
+        children: {
+
+            "Local": {
+                type: "dir"
+            },
+
+            "Roaming": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\AppData\\Local": {
+        type: "dir",
+        children: {
+
+            "Temp": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\AppData\\Local\\Temp": {
+        type: "dir",
+        children: {
+
+            "log.txt": {
+                type: "file",
+                content:
+`Application started.
+Application closed.
+Application started.
+Application closed.
+`
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\AppData\\Roaming": {
+        type: "dir",
+        children: {
+
+            "Microsoft": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\AppData\\Roaming\\Microsoft": {
+        type: "dir",
+        children: {
+
+            "Windows": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\AppData\\Roaming\\Microsoft\\Windows": {
+        type: "dir",
+        children: {
+
+            "Recent": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Birthday\\AppData\\Roaming\\Microsoft\\Windows\\Recent": {
+        type: "dir",
+        children: {
+
+            "birthday.lnk": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Users\\Guest": {
+        type: "dir",
+        children: {
+
+            "Desktop": {
+                type: "dir"
+            },
+
+            "Documents": {
+                type: "dir"
+            }
+        }
+    },
+
+
+    "C:\\Users\\Guest\\Desktop": {
+        type: "dir",
+        children: {
+
+            "welcome.txt": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Users\\Guest\\Documents": {
+        type: "dir",
+        children: {
+
+            "notes.txt": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Documents": {
+        type: "dir",
+        children: {
+
+            "archive": {
+                type: "dir"
+            },
+
+            "notes.txt": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Documents\\archive": {
+        type: "dir",
+        children: {
+
+            "old.txt": {
+                type: "file",
+                content: ""
+            }
+        }
+    },
+
+
+    "C:\\Downloads": {
+        type: "dir",
+        children: {
+
+            "birthday.zip": {
+                type: "file",
+                content: ""
+            },
+
+            "notes.txt": {
+                type: "file",
+                content:
+`Remember:
+
+Binary is the key, but what's a key without its lock?
+`
+            }
+        }
+    },
+
+
+    "C:\\System": {
+        type: "dir",
+        children: {
+
+            "logs": {
+                type: "dir"
+            },
+
+            "info.txt": {
+                type: "file",
+                content:
+`BirthdayOS System Information
+
+Version 1.0
+Architecture: x86
+Memory: 640K
+`
+            }
+        }
+    },
+
+
+    "C:\\System\\logs": {
+        type: "dir",
+        children: {
+
+            "boot.log": {
+                type: "file",
+                content:
+`BOOT SEQUENCE
+----------------
+Memory check: OK
+Filesystem: OK
+Drivers: OK
+System ready.
+`
+            },
+
+            "error.log": {
+                type: "file",
+                content:
+`No critical errors found.
+`
+            }
+        }
+    }
+
+};
+
+
+const commands = {
+
+    help: "Displays a list of available commands.",
+    dir: "Lists files and folders in the current directory.",
+    cd: "Changes the current directory.",
+    type: "Displays the contents of a text file.",
+    cls: "Clears the screen.",
+    echo: "Displays text on the screen.",
+    pwd: "Displays the current directory.",
+    find: "Searches the computer for a filename.",
+    whoami: "Displays the current user.",
+    date: "Displays the current date.",
+    time: "Displays the current time.",
+    clear: "Clears the screen.",
+    exit: "Closes the command prompt."
+
+};
+
+
+function print(text = "", className = "") {
+
+    const div = document.createElement("div");
+
+    div.className = "line " + className;
+
+    div.textContent = text;
+
+    output.appendChild(div);
+
+    terminal.scrollTop = terminal.scrollHeight;
+
+}
+
+
+function updatePrompt() {
+
+    prompt.textContent = currentPath + ">";
+
+}
+
+
+function normalizePath(path) {
+
+    if (!path) {
+        return currentPath;
+    }
+
+    path = path.replace(/\//g, "\\");
+
+
+    if (path.toUpperCase() === "C:") {
+        return "C:\\";
+    }
+
+
+    if (path === "\\") {
+        return "C:\\";
+    }
+
+
+    if (path.toUpperCase().startsWith("C:\\")) {
+
+        const parts = path.split("\\");
+        const resolved = [];
+
+        for (const part of parts) {
+
+            if (!part || part === ".") {
+                continue;
+            }
+
+            if (part === "..") {
+
+                if (resolved.length > 0) {
+                    resolved.pop();
+                }
+
+            } else {
+
+                resolved.push(part);
+
+            }
+
+        }
+
+        return "C:\\" + resolved.join("\\");
+    }
+
+
+    let baseParts =
+        currentPath.split("\\").filter(Boolean);
+
+    const targetParts =
+        path.split("\\");
+
+
+    for (const part of targetParts) {
+
+        if (!part || part === ".") {
+            continue;
+        }
+
+
+        if (part === "..") {
+
+            if (baseParts.length > 1) {
+                baseParts.pop();
+            }
+
+        } else {
+
+            baseParts.push(part);
+
+        }
+
+    }
+
+
+    return "C:\\" +
+        baseParts.slice(1).join("\\");
+}
+
+
+function getEntry(path) {
+
+    return filesystem[path];
+
+}
+
+
+function findChildName(entry, name) {
+
+    if (!entry || !entry.children) {
+        return null;
+    }
+
+
+    if (entry.children[name]) {
+        return name;
+    }
+
+
+    const lowerName =
+        name.toLowerCase();
+
+
+    for (const childName of Object.keys(entry.children)) {
+
+        if (childName.toLowerCase() === lowerName) {
+            return childName;
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+function showHelp() {
+
+    print("");
+    print("Available commands:");
+    print("");
+
+
+    Object.entries(commands).forEach(([command, description]) => {
+
+        print(
+            "  " +
+            command.padEnd(8) +
+            " - " +
+            description
+        );
+
+    });
+
+
+    print("");
+    print("Type a command followed by ENTER.");
+    print("");
+
+}
+
+
+function showDirectory() {
+
+    const entry =
+        getEntry(currentPath);
+
+
+    if (!entry || entry.type !== "dir") {
+
+        print(
+            "The system cannot find the path specified.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    print("");
+    print(" Directory of " + currentPath);
+    print("");
+
+
+    Object.entries(entry.children).forEach(([name, item]) => {
+
+        if (item.type === "dir") {
+
+            print(
+                " <DIR>          " +
+                name
+            );
+
+        } else {
+
+            print(
+                "                " +
+                name
+            );
+
+        }
+
+    });
+
+
+    print("");
+
+}
+
+
+function changeDirectory(target) {
+
+    if (!target) {
+
+        print(currentPath);
+
+        return;
+    }
+
+
+    const newPath =
+        normalizePath(target);
+
+
+    const entry =
+        getEntry(newPath);
+
+
+    if (!entry || entry.type !== "dir") {
+
+        print(
+            "The system cannot find the path specified.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    currentPath = newPath;
+
+    updatePrompt();
+
+}
+
+
+function typeFile(filename) {
+
+    if (!filename) {
+
+        print(
+            "The syntax of the command is incorrect.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const entry =
+        getEntry(currentPath);
+
+
+    if (!entry || !entry.children) {
+
+        print(
+            "The system cannot find the file specified.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const realName =
+        findChildName(entry, filename);
+
+
+    if (!realName) {
+
+        print(
+            "The system cannot find the file specified.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const file =
+        entry.children[realName];
+
+
+    if (file.type === "dir") {
+
+        print(
+            "Access is denied.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    print("");
+
+    print(file.content);
+
+}
+
+
+function findFiles(filename) {
+
+    if (!filename) {
+
+        print(
+            "The syntax of the command is incorrect.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const results = [];
+
+    const searchName =
+        filename.toLowerCase();
+
+
+    Object.keys(filesystem).forEach(path => {
+
+        const entry =
+            filesystem[path];
+
+
+        if (!entry.children) {
+            return;
+        }
+
+
+        Object.keys(entry.children).forEach(name => {
+
+            if (name.toLowerCase() === searchName) {
+
+                const fullPath =
+                    path === "C:\\"
+                        ? "C:\\" + name
+                        : path + "\\" + name;
+
+
+                results.push(fullPath);
+
+            }
+
+        });
+
+    });
+
+
+    if (results.length === 0) {
+
+        print(
+            "File not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    print("");
+
+
+    results.forEach(path => {
+        print(path);
+    });
+
+
+    print("");
+
+}
+
+
+function executeCommand(rawCommand) {
+
+    const trimmed =
+        rawCommand.trim();
+
+
+    if (!trimmed) {
+        return;
+    }
+
+
+    commandHistory.push(trimmed);
+
+    historyIndex =
+        commandHistory.length;
+
+
+    print(
+        currentPath +
+        ">" +
+        trimmed
+    );
+
+
+    const parts =
+        trimmed.split(/\s+/);
+
+
+    const command =
+        parts[0].toLowerCase();
+
+
+    const args =
+        trimmed
+            .substring(parts[0].length)
+            .trim();
+
+
+    switch (command) {
+
+        case "help":
+
+            showHelp();
+
+            break;
+
+
+        case "dir":
+
+            showDirectory();
+
+            break;
+
+
+        case "cd":
+
+            changeDirectory(args);
+
+            break;
+
+
+        case "type":
+
+            typeFile(args);
+
+            break;
+
+
+        case "pwd":
+
+            print(currentPath);
+
+            break;
+
+
+        case "find":
+
+            findFiles(args);
+
+            break;
+
+
+        case "cls":
+        case "clear":
+
+            output.innerHTML = "";
+
+            break;
+
+
+        case "echo":
+
+            print(args);
+
+            break;
+
+
+        case "whoami":
+
+            print("birthday");
+
+            break;
+
+
+        case "date":
+
+            print(
+                new Date()
+                    .toLocaleDateString()
+            );
+
+            break;
+
+
+        case "time":
+
+            print(
+                new Date()
+                    .toLocaleTimeString()
+            );
+
+            break;
+
+
+        case "exit":
+
+            window.close();
+
+            break;
+
+
+        default:
+
+            print(
+                "'" +
+                command +
+                "' is not recognized as an internal or external command,",
+                "error"
+            );
+
+            print(
+                "operable program or batch file.",
+                "error"
+            );
+
+            break;
+
+    }
+
+
+    terminal.scrollTop =
+        terminal.scrollHeight;
+
+}
+
+
+input.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            executeCommand(
+                input.value
+            );
+
+            input.value = "";
+
+            return;
+        }
+
+
+        if (event.key === "ArrowUp") {
+
+            if (commandHistory.length === 0) {
+                return;
+            }
+
+
+            historyIndex =
+                Math.max(
+                    0,
+                    historyIndex - 1
+                );
+
+
+            input.value =
+                commandHistory[
+                    historyIndex
+                ];
+
+
+            event.preventDefault();
+
+            return;
+        }
+
+
+        if (event.key === "ArrowDown") {
+
+            if (commandHistory.length === 0) {
+                return;
+            }
+
+
+            historyIndex =
+                Math.min(
+                    commandHistory.length,
+                    historyIndex + 1
+                );
+
+
+            input.value =
+                historyIndex === commandHistory.length
+                    ? ""
+                    : commandHistory[
+                        historyIndex
+                    ];
+
+
+            event.preventDefault();
+
+        }
+
+    }
+);
+
+
+terminal.addEventListener(
+    "click",
+    function() {
+
+        input.focus();
+
+    }
+);
+
+
+window.addEventListener(
+    "load",
+    function() {
+
+        print(
+            "Microsoft(R) BirthdayOS Command Prompt"
+        );
+
+        print(
+            "(C) Birthday Corporation. All rights reserved."
+        );
+
+        print("");
+
+        print(
+            "C:\\>help"
+        );
+
+        showHelp();
+
+        updatePrompt();
+
+        input.focus();
+        
+    }
+    
+);
+const backgroundMusic =
+  document.getElementById("backgroundMusic");
+
+backgroundMusic.volume = 0;
+
+window.addEventListener("load", function() {
+
+  backgroundMusic.play().then(function() {
+
+    let volume = 0;
+
+    const fadeIn = setInterval(function() {
+
+      volume += 0.01;
+
+      backgroundMusic.volume = Math.min(volume, 0.25);
+
+      if (volume >= 0.25) {
+        clearInterval(fadeIn);
+      }
+
+    }, 100);
+
+  }).catch(function(error) {
+
+    console.log("Music failed to play:", error);
+
+  });
+
+});
+</script>
+
+</body>
+</html>

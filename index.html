@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Desktop OS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="media/windows-95.png">
+  <script src="script/drag.js" defer></script>
+<script src="script/resize.js" defer></script>
+<script src="script/windowSystem.js" defer></script>
+<script src="script/clock.js" defer></script>
+<script src="script/boot.js" defer></script>
+</head>
+
+<body>
+  <div id="boot-screen">
+    <div class="crt-overlay"></div>
+
+    <div class="boot-center">
+      <div class="boot-title">Starting system...</div>
+
+      <div class="boot-bar">
+        <div class="boot-fill" id="bootFill"></div>
+      </div>
+
+      <div class="boot-text" id="bootText">Initializing components...</div>
+    </div>
+  </div>
+  <div id="desktop"></div>
+
+  <div id="start-menu">
+    <div class="start-item" data-app="program.html">Programs</div>
+    <div class="start-item" data-app="documents.html">Documents</div>
+    <div class="start-item" data-app="contact.html">Contact</div>
+    <div class="start-item" data-app="cmdprom.html">cmd</div>
+  </div>
+
+  <div class="taskbar">
+    <div class="start-button">[ Start ]</div>
+    <div id="taskbar-apps"></div>
+    <div id="clock"></div>
+  </div>
+
+    <div id="desktop-icons">
+
+  <div class="desktop-icon" data-title="Programs" data-app="program.html">
+    <img src="media/folder-icon.png" />
+    <div class="label">Programs</div>
+  </div>
+
+  <div class="desktop-icon" data-title="Documents" data-app="documents.html">
+    <img src="media/document-icon.png" />
+    <div class="label">Documents</div>
+  </div>
+
+  <div class="desktop-icon" data-title="Contact" data-app="contact.html">
+    <img src="media/document-icon.png" />
+    <div class="label">Contact</div>
+  </div>
+  <div class="desktop-icon" data-title="Gallery" data-app="gallery.html">
+    <img src="media/folder-icon.png" />
+    <div class="label">Gallery</div>
+  </div>
+
+  <div class="desktop-icon" data-title="Minesweeper" data-app="minesweeper.html">
+    <img src="media/minesweeper-icon.png" />
+    <div class="label">Minesweeper</div>
+ </div>
+
+ </div>
+</body>
+</html>

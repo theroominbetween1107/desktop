@@ -1,0 +1,644 @@
+body {
+
+  background-color: #008080;
+
+  color: #000;
+
+  font-family: "MS Sans Serif", Arial, sans-serif;
+
+  overflow: hidden;
+
+  margin: 0;
+
+  padding-bottom: 50px;
+
+}
+
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+@font-face {
+
+  font-family: "MS Sans Serif";
+
+  src: url("../fonts/MS_Sans_Serif.ttf") format("truetype");
+
+}
+
+/* ================= DESKTOP ICONS ================= */
+
+#desktop-icons {
+
+  position: absolute;
+
+  top: 20px;
+
+  left: 20px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+
+}
+
+.desktop-icon {
+
+  width: 80px;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  user-select: none;
+
+  font-family: "MS Sans Serif", Arial, sans-serif;
+
+}
+
+.desktop-icon img {
+
+  width: 48px;
+
+  height: 48px;
+
+  display: block;
+
+  margin: 0 auto;
+
+}
+
+.desktop-icon .label {
+
+  font-size: 12px;
+
+  color: white;
+
+  margin-top: 4px;
+
+  text-shadow: 1px 1px black;
+
+}
+
+.desktop-icon:hover {
+
+  background: rgba(255,255,255,0.1);
+
+  border-radius: 4px;
+
+}
+
+/* ================= WINDOW SYSTEM ================= */
+
+.window {
+
+  position: absolute;
+
+  /* IMPORTANT FIX: keep windows inside screen */
+
+  max-width: 100vw;
+
+  max-height: calc(100vh - 40px);
+
+  width: 500px;
+
+  height: 400px;
+
+  background: #c0c0c0;
+
+  border: 2px solid black;
+
+  user-select: none;
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+/* ================= HEADER ================= */
+
+.window-header {
+
+  background: navy;
+
+  color: white;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  cursor: move;
+
+  padding: 3px;
+
+  height: 22px;
+
+  flex-shrink: 0;
+
+}
+
+.window-title {
+
+  font-family: "MS Sans Serif", Arial, sans-serif;
+
+}
+
+/* ================= BUTTONS ================= */
+
+.window-buttons {
+
+  display: flex;
+
+  gap: 5px;
+
+}
+
+.window-buttons .btn {
+
+  width: 16px;
+
+  height: 14px;
+
+  background: #c0c0c0;
+
+  border: 1px solid #fff;
+
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 10px;
+
+  color: black;
+
+  cursor: pointer;
+
+}
+
+.window-buttons .btn:hover {
+
+  background: #dcdcdc;
+
+}
+
+.window-buttons .btn:active {
+
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+
+}
+
+/* ================= CONTENT (FIXED SCROLL SYSTEM) ================= */
+
+.window-content {
+
+  background-color: #f0ede2;
+
+  border: 2px solid #808080;
+
+  margin: 8px;
+
+  padding: 0;
+
+  /* KEY FIX */
+
+  flex: 1;
+
+  min-height: 0;
+
+  overflow: auto; /* allows proper scrolling */
+
+  font-family: "MS Sans Serif", Arial, sans-serif;
+
+}
+
+/* iframe fills content area */
+
+.window-content iframe {
+
+  width: 100%;
+
+  height: 100%;
+
+  border: none;
+
+  display: block;
+
+}
+
+/* ================= TASKBAR ================= */
+
+.taskbar {
+
+  position: fixed;
+
+  bottom: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  background-color: #c0c0c0;
+
+  border-top: 2px solid #808080;
+
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+
+  padding: 4px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+}
+
+.start-button {
+
+  background-color: #c0c0c0;
+
+  border: 2px solid #fff;
+
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+
+  padding: 2px 8px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+}
+
+.start-button:active {
+
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+
+}
+
+#clock {
+
+  margin-right: 15px;
+
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+
+  padding: 5px;
+
+}
+
+/* ================= START MENU ================= */
+
+#start-menu {
+
+  position: fixed;
+
+  bottom: 40px;
+
+  left: 5px;
+
+  width: 150px;
+
+  background-color: #c0c0c0;
+
+  border: 2px solid #000;
+
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+
+  display: none;
+
+  z-index: 100;
+
+}
+
+.start-item {
+
+  padding: 6px;
+
+  cursor: pointer;
+
+}
+
+.start-item:hover {
+
+  background-color: #000080;
+
+  color: white;
+
+}
+
+/* ================= TASKBAR APPS ================= */
+
+#taskbar-apps {
+
+  display: flex;
+
+  gap: 5px;
+
+}
+
+.taskbar-app {
+
+  background: #c0c0c0;
+
+  border: 2px solid #fff;
+
+  padding: 2px 8px;
+
+  cursor: pointer;
+
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+
+}
+
+.taskbar-app:active {
+
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+
+}
+
+/* ================= RESIZERS ================= */
+
+.resizer {
+
+  position: absolute;
+
+  background: transparent;
+
+}
+
+.resizer.right {
+
+  right: 0;
+
+  top: 0;
+
+  width: 5px;
+
+  height: 100%;
+
+  cursor: ew-resize;
+
+}
+
+.resizer.bottom {
+
+  bottom: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 5px;
+
+  cursor: ns-resize;
+
+}
+
+.resizer.bottom-right {
+
+  right: 0;
+
+  bottom: 0;
+
+  width: 12px;
+
+  height: 12px;
+
+  cursor: nwse-resize;
+
+  background: #c0c0c0;
+
+  border-top: 1px solid #ffffff;
+
+  border-left: 1px solid #ffffff;
+
+  border-right: 1px solid #808080;
+
+  border-bottom: 1px solid #808080;
+
+  box-sizing: border-box;
+
+}
+
+.resizer.bottom-right::after {
+
+  content: "";
+
+  position: absolute;
+
+  right: 2px;
+
+  bottom: 2px;
+
+  width: 6px;
+
+  height: 6px;
+
+  opacity: 0.8;
+
+  background: radial-gradient(#808080 2px, transparent 3px);
+
+}
+
+/* ================= FONT SAFETY ================= */
+
+.window,
+
+.window * {
+
+  font-family: "MS Sans Serif", Arial, sans-serif;
+
+}
+
+/* ================= BOOT SCREEN ================= */
+
+#boot-screen {
+
+  position: fixed;
+
+  inset: 0;
+
+  background: #0b0f14; /* darker Windows 95-ish blue/gray */
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  z-index: 99999;
+
+  overflow: hidden;
+
+  color: #c0c0c0;
+
+  font-family: "MS Sans Serif", Arial, sans-serif;
+
+}
+
+/* CRT OVERLAY */
+
+.crt-overlay {
+
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  /* scanlines */
+
+  background: repeating-linear-gradient(
+
+    to bottom,
+
+    rgba(255,255,255,0.03),
+
+    rgba(255,255,255,0.03) 1px,
+
+    transparent 1px,
+
+    transparent 3px
+
+  );
+
+  animation: flicker 0.12s infinite;
+
+  opacity: 0.4;
+
+}
+
+/* subtle flicker */
+
+@keyframes flicker {
+
+  0% { opacity: 0.35; }
+
+  50% { opacity: 0.45; }
+
+  100% { opacity: 0.38; }
+
+}
+
+.boot-center {
+
+  text-align: center;
+
+  z-index: 2;
+
+}
+
+.boot-title {
+
+  font-size: 18px;
+
+  margin-bottom: 20px;
+
+  letter-spacing: 1px;
+
+}
+
+.boot-bar {
+
+  width: 320px;
+
+  height: 14px;
+
+  border: 2px solid #888;
+
+  background: #1a1a1a;
+
+  margin: 0 auto 15px auto;
+
+  overflow: hidden;
+
+  box-shadow: inset 0 0 4px black;
+
+}
+
+.boot-fill {
+
+  height: 100%;
+
+  width: 0%;
+
+  background: linear-gradient(to right, #c0c0c0, #ffffff, #c0c0c0);
+
+  transition: width 0.15s linear;
+
+}
+
+.boot-text {
+
+  font-size: 12px;
+
+  opacity: 0.8;
+
+}
+
+/* ===== GLOBAL WINDOWS 95 STYLE SCROLLBAR ===== */
+
+*::-webkit-scrollbar {
+
+  width: 14px;
+
+  height: 14px;
+
+}
+
+*::-webkit-scrollbar-track {
+
+  background: #c0c0c0;
+
+  border-left: 1px solid #808080;
+
+  border-top: 1px solid #808080;
+
+  border-right: 1px solid #ffffff;
+
+  border-bottom: 1px solid #ffffff;
+
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #ffffff;
+
+}
+
+*::-webkit-scrollbar-thumb {
+
+  background: #c0c0c0;
+
+  border: 1px solid #808080;
+
+  box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+
+}
+
+*::-webkit-scrollbar-thumb:hover {
+
+  background: #dcdcdc;
+
+}
+
+*::-webkit-scrollbar-corner {
+
+  background: #c0c0c0;
+
+}

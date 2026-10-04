@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Program Files</title>
+  <link rel="stylesheet" href="../css/style.css">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 10px;
+      height: auto;
+      overflow-y: auto;
+      font-family: "MS Sans Serif", Arial, sans-serif;
+      background: #f0ede2;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .toolbar button {
+      font-family: "MS Sans Serif", Arial, sans-serif;
+      background: #c0c0c0;
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      padding: 3px 12px;
+    }
+
+    .toolbar button:active {
+      border-color: #808080 #ffffff #ffffff #808080;
+    }
+
+    .address-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .address-label {
+      font-size: 12px;
+    }
+
+    .address {
+      flex: 1;
+      background: white;
+      border: 2px solid #808080;
+      padding: 3px 6px;
+      font-size: 12px;
+    }
+
+    .file-area {
+      background: white;
+      border: 2px solid;
+      border-color: #808080 #ffffff #ffffff #808080;
+      min-height: 280px;
+      padding: 12px;
+    }
+
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 90px);
+      gap: 18px;
+    }
+
+    .file {
+      width: 80px;
+      padding: 5px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .file:hover {
+      background: #000080;
+      color: white;
+    }
+
+    .file img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 5px;
+    }
+
+    .file-name {
+      font-size: 11px;
+      word-wrap: break-word;
+    }
+
+    .status {
+      margin-top: 5px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="toolbar">
+    <button onclick="goBack()">Back</button>
+    <button onclick="goUp()">Up</button>
+  </div>
+
+  <div class="address-bar">
+    <span class="address-label">Address:</span>
+    <div class="address">C:\Program Files</div>
+  </div>
+
+  <div class="file-area">
+
+    <div class="file-grid">
+
+      <div class="file" onclick="openProgram('Internet Explorer', 'internet-explorer.html')">
+        <img src="../media/IE.png">
+        <div class="file-name">Internet Explorer</div>
+      </div>
+
+      <div class="file" onclick="openProgram('Windows Media Player', 'media-player.html')">
+        <img src="../media/folder-icon.png">
+        <div class="file-name">Windows Media Player</div>
+      </div>
+
+      <div class="file" onclick="openProgram('Games', 'battle.html')">
+        <img src="../media/folder-icon.png">
+        <div class="file-name">Games</div>
+      </div>
+
+      <div class="file" onclick="openProgram('Utilities', 'utilities.html')">
+        <img src="../media/folder-icon.png">
+        <div class="file-name">Utilities</div>
+      </div>
+
+      <div class="file" onclick="openProgram('System Tools', 'system-tools.html')">
+        <img src="../media/folder-icon.png">
+        <div class="file-name">System Tools</div>
+      </div>
+
+      <div class="file" onclick="openProgram('Birthday Software', 'birthday.html')">
+        <img src="../media/folder-icon.png">
+        <div class="file-name">Birthday Software</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="status">
+    6 objects
+  </div>
+
+  <script>
+    function openProgram(title, file) {
+      window.parent.createWindow(
+        title,
+        "apps/" + file
+      );
+    }
+
+    function goBack() {
+      window.parent.createWindow(
+        "Portfolio",
+        "apps/portfolio.html"
+      );
+    }
+
+    function goUp() {
+      window.parent.createWindow(
+        "Desktop",
+        "apps/program.html"
+      );
+    }
+  </script>
+
+</body>
+</html>

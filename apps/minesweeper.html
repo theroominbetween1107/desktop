@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+  margin: 0;
+  padding: 8px;
+  background: #c0c0c0;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#window {
+  border: 2px solid #000;
+  box-shadow: inset -2px -2px #808080, inset 2px 2px #fff;
+  padding: 6px;
+}
+
+#topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid #808080;
+  padding: 4px;
+  margin-bottom: 6px;
+}
+
+.counter {
+  background: black;
+  color: red;
+  font-family: monospace;
+  padding: 4px;
+  width: 60px;
+  text-align: center;
+}
+
+#face {
+  width: 26px;
+  height: 26px;
+  border: 2px solid #fff;
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+  cursor: pointer;
+  text-align: center;
+  line-height: 26px;
+}
+
+#game {
+  display: grid;
+  gap: 2px;
+  justify-content: center;
+}
+
+.cell {
+  width: 24px;
+  height: 24px;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+  text-align: center;
+  line-height: 24px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.revealed {
+  background: #bdbdbd;
+  border: 1px solid #808080;
+  box-shadow: none;
+}
+
+.flag::after { content: "🚩"; }
+.mine::after { content: "💣"; }
+
+.n1 { color: blue; }
+.n2 { color: green; }
+.n3 { color: red; }
+.n4 { color: navy; }
+.n5 { color: maroon; }
+.n6 { color: teal; }
+.n7 { color: black; }
+.n8 { color: gray; }
+</style>
+</head>
+
+<body>
+
+<div id="window">
+
+  <div id="controls">
+    <select id="difficulty">
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+  </div>
+
+  <div id="topbar">
+    <div id="mineCounter" class="counter">000</div>
+    <div id="face">🙂</div>
+    <div id="timer" class="counter">000</div>
+  </div>
+
+  <div id="game"></div>
+
+</div>
+
+<script>
+let size, minesTotal;
+let board = [];
+let firstClick = true;
+let gameOver = false;
+let revealedCount = 0;
+let flags = 0;
+let timer = 0;
+let timerInterval;
+
+const difficulties = {
+  easy: { size: 8, mines: 10 },
+  medium: { size: 12, mines: 20 },
+  hard: { size: 16, mines: 40 }
+};
+
+/* 🚫 ONLY BLOCK RIGHT CLICK INSIDE GAME */
+document.addEventListener("contextmenu", (e) => {
+  if (e.target.closest("#game")) {
+    e.preventDefault();
+  }
+});
+
+/* ⏱ TIMER */
+function startTimer() {
+  clearInterval(timerInterval);
+  timer = 0;
+  timerInterval = setInterval(() => {
+    timer++;
+    document.getElementById("timer").textContent =
+      String(timer).padStart(3, "0");
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+/* 💣 SAFE ZONE MINE PLACEMENT */
+function placeMines(safeX, safeY) {
+  let placed = 0;
+
+  const safe = (x, y) =>
+    Math.abs(x - safeX) <= 1 && Math.abs(y - safeY) <= 1;
+
+  while (placed < minesTotal) {
+    let x = Math.floor(Math.random() * size);
+    let y = Math.floor(Math.random() * size);
+
+    if (!board[y][x].mine && !safe(x, y)) {
+      board[y][x].mine = true;
+      placed++;
+    }
+  }
+}
+
+/* INIT */
+function init() {
+  const diff = difficulties[difficulty.value];
+
+  size = diff.size;
+  minesTotal = diff.mines;
+
+  board = [];
+  firstClick = true;
+  gameOver = false;
+  revealedCount = 0;
+  flags = 0;
+
+  stopTimer();
+  timer = 0;
+
+  document.getElementById("timer").textContent = "000";
+  document.getElementById("mineCounter").textContent =
+    String(minesTotal).padStart(3, "0");
+  document.getElementById("face").textContent = "🙂";
+
+  const game = document.getElementById("game");
+  game.innerHTML = "";
+  game.style.gridTemplateColumns = `repeat(${size}, 24px)`;
+
+  for (let y = 0; y < size; y++) {
+    board[y] = [];
+
+    for (let x = 0; x < size; x++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+
+      cell.addEventListener("click", () => reveal(x, y));
+
+      cell.addEventListener("mousedown", (e) => {
+        if (e.button === 2) toggleFlag(x, y);
+        if (e.buttons === 3) chord(x, y);
+      });
+
+      game.appendChild(cell);
+
+      board[y][x] = {
+        mine: false,
+        revealed: false,
+        element: cell
+      };
+    }
+  }
+}
+
+/* REVEAL */
+function reveal(x, y) {
+  if (gameOver) return;
+
+  const cell = board[y][x];
+  if (cell.revealed || cell.element.classList.contains("flag")) return;
+
+  if (firstClick) {
+    placeMines(x, y);
+    startTimer();
+    firstClick = false;
+  }
+
+  cell.revealed = true;
+  revealedCount++;
+  cell.element.classList.add("revealed");
+
+  if (cell.mine) {
+    cell.element.classList.add("mine");
+    lose();
+    return;
+  }
+
+  const count = countMines(x, y);
+
+  if (count > 0) {
+    cell.element.textContent = count;
+    cell.element.classList.add("n" + count);
+  } else {
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        let nx = x + dx;
+        let ny = y + dy;
+
+        if (nx >= 0 && ny >= 0 && nx < size && ny < size) {
+          if (!board[ny][nx].revealed) reveal(nx, ny);
+        }
+      }
+    }
+  }
+
+  checkWin();
+}
+
+/* COUNT */
+function countMines(x, y) {
+  let count = 0;
+
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      let nx = x + dx;
+      let ny = y + dy;
+
+      if (nx >= 0 && ny >= 0 && nx < size && ny < size) {
+        if (board[ny][nx].mine) count++;
+      }
+    }
+  }
+
+  return count;
+}
+
+/* FLAGS */
+function toggleFlag(x, y) {
+  if (gameOver) return;
+
+  const cell = board[y][x];
+  if (cell.revealed) return;
+
+  if (cell.element.classList.contains("flag")) {
+    cell.element.classList.remove("flag");
+    flags--;
+  } else {
+    if (flags >= minesTotal) return;
+    cell.element.classList.add("flag");
+    flags++;
+  }
+
+  document.getElementById("mineCounter").textContent =
+    String(minesTotal - flags).padStart(3, "0");
+}
+
+/* WIN / LOSE */
+function checkWin() {
+  if (revealedCount === size * size - minesTotal) {
+    gameOver = true;
+    stopTimer();
+    document.getElementById("face").textContent = "😎";
+  }
+}
+
+function lose() {
+  gameOver = true;
+  stopTimer();
+  document.getElementById("face").textContent = "💀";
+
+  board.flat().forEach(c => {
+    if (c.mine) c.element.classList.add("mine");
+  });
+}
+
+document.getElementById("face").onclick = init;
+document.getElementById("difficulty").onchange = init;
+
+init();
+</script>
+
+</body>
+</html>
